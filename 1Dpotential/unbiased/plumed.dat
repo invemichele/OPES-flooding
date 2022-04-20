@@ -1,0 +1,13 @@
+# vim:ft=plumed
+UNITS NATURAL
+
+p: POSITION ATOM=2
+doubleWell: CUSTOM ARG=p.x PERIODIC=NO ...
+  FUNC=x^4-7*x^2+x+14.14
+...
+potential: BIASVALUE ARG=doubleWell
+
+PRINT FMT=%g STRIDE=500 FILE=COLVAR ARG=p.x,doubleWell
+
+ENDPLUMED
+

@@ -1,0 +1,13 @@
+# plumed pesmd input
+nstep        2000000
+tstep        0.005
+temperature  1.0
+friction     10.0
+plumed       ../plumed.dat
+periodic     false
+dimension    1
+idum         70511
+ipos         -1.86091
+
+# Double-well potential on gnulot
+# p [-3:3][0:20] x**4 - 7 * x**2 + x + 14.14

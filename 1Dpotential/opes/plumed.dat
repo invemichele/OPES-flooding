@@ -1,0 +1,19 @@
+# vim:ft=plumed
+UNITS NATURAL
+
+p: POSITION ATOM=2
+doubleWell: CUSTOM ARG=p.x PERIODIC=NO ...
+  FUNC=x^4-7*x^2+x+14.14
+...
+potential: BIASVALUE ARG=doubleWell
+
+opes: OPES_METAD TEMP=1 ARG=p.x PACE=500 BARRIER=14 SIGMA=0.2
+
+PRINT FMT=%g STRIDE=500 FILE=COLVAR ARG=p.x,doubleWell,opes.*
+
+ENDPLUMED
+
+Notice that we are in the highly unrealistic situation in which
+we are biasing all the degrees of freedom of the system.
+OPES is not meant to handle this and can sometimes 
+be slow at converging, see replica 2.
