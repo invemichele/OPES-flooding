@@ -4,8 +4,17 @@
 [ $# -eq 1 ] || exit
 rep=$1
 
+inputfile=../../inputs/input_md.${rep}.dat
+if [ ! -f "$inputfile" ]
+then
+  echo "creating $inptufile"
+  cd ../../inputs
+  ./create_input.sh $rep > input_md.${rep}.dat
+  cd -
+fi
+
 # Job Settings
-jname=${PWD: -7}
+jname=${PWD}-$rep
 ncore=1
 max_t=12:00 #h:min
 outfile=log.plumed
@@ -14,7 +23,7 @@ outfile=log.plumed
 host=$HOSTNAME
 
 # Commands
-mpi_cmd="plumed pesmd ../../inputs/input_md.${rep}.dat |grep PLUMED"
+mpi_cmd="plumed pesmd $inputfile |grep PLUMED"
 #extra_cmd="../analyze_single.sh"
 extra_cmd="rm stats.out"
 
