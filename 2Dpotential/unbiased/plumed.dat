@@ -1,0 +1,18 @@
+# vim:ft=plumed
+UNITS NATURAL
+
+p: POSITION ATOM=2
+doubleWell: CUSTOM ARG=p.x,p.y PERIODIC=NO ...
+  FUNC=2*(x^4+y^4-2*x^2-4*y^2+2*x*y+0.8*x+0.1*y+9.28)
+...
+potential: BIASVALUE ARG=doubleWell
+
+##the rotated CVs
+#theta: CONSTANT VALUE=0.3*pi/2
+#sx: CUSTOM ARG=p.x,p.y,theta PERIODIC=NO FUNC=cos(z)*x-sin(z)*y
+#sy: CUSTOM ARG=p.x,p.y,theta PERIODIC=NO FUNC=sin(z)*x+cos(z)*y
+
+PRINT FMT=%g STRIDE=500 FILE=COLVAR ARG=p.x,p.y,doubleWell #,sx,sy
+
+ENDPLUMED
+
