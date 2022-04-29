@@ -4,6 +4,11 @@
 [ $# -eq 1 ] || exit
 rep=$1
 
+export OMP_NUM_THREADS=1
+cpushift=-1  #CHANGE HERE, either -1 or 15 usually
+numcores=32
+cpusel=$(( $rep%$numcores + $cpushift ))
+
 inputfile=../../inputs/input_md.${rep}.dat
 if [ ! -f "$inputfile" ]
 then
@@ -23,9 +28,9 @@ outfile=log.plumed
 host=$HOSTNAME
 
 # Commands
-mpi_cmd="plumed pesmd $inputfile |grep PLUMED"
+mpi_cmd="plumed ves_md_linearexpansion $inputfile |grep PLUMED"
 #extra_cmd="../analyze_single.sh"
-extra_cmd="rm stats.out"
+extra_cmd="rm stats.out Kernels.data"
 
 # Prepare Submission
 bck.meup.sh -i $outfile
@@ -38,11 +43,9 @@ then
   echo -e " euler submission:\n$submit" |tee -a $outfile
 ### if workstation ###
 else
-  if [ $ncore -gt 8 ]
-  then
-    ncore=8
-  fi
-  submit="time mpirun -np $ncore ${mpi_cmd}"
+  ncore=1
+  #submit="time mpirun -np $ncore ${mpi_cmd}"
+  submit="mpirun -np $ncore --cpu-set ${cpusel} ${mpi_cmd}"
   echo -e " workstation submission:\n$submit\n$extra_cmd" |tee -a $outfile
   eval "$submit &>> $outfile"
   submit="$extra_cmd" # &>> $outfile"
