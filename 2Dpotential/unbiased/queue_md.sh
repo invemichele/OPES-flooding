@@ -10,7 +10,7 @@ outfile=log.plumed
 host=$HOSTNAME
 
 # Commands
-mpi_cmd="plumed pesmd input_md.dat |grep PLUMED"
+mpi_cmd="plumed ves_md_linearexpansion input_md.dat |grep PLUMED"
 #extra_cmd="../analyze_single.sh"
 extra_cmd="rm stats.out"
 
@@ -27,7 +27,7 @@ then
 else
   if [ $ncore -gt 8 ]
   then
-    ncore=8
+    ncore=1
   fi
   submit="time mpirun -np $ncore ${mpi_cmd}"
   echo -e " workstation submission:\n$submit\n$extra_cmd" |tee -a $outfile
