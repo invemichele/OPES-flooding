@@ -1,23 +1,44 @@
 # vim:ft=plumed
 UNITS NATURAL
 
-p: POSITION ATOM=2
+p: POSITION ATOM=1
 doubleWell: CUSTOM ARG=p.x,p.y PERIODIC=NO ...
   FUNC=2*(x^4+y^4-2*x^2-4*y^2+2*x*y+0.8*x+0.1*y+9.28)
 ...
 potential: BIASVALUE ARG=doubleWell
 
 #the rotated CVs
-theta: CONSTANT VALUE=0.3*pi/2
-sx: CUSTOM ARG=p.x,p.y,theta PERIODIC=NO FUNC=cos(z)*x-sin(z)*y
-sy: CUSTOM ARG=p.x,p.y,theta PERIODIC=NO FUNC=sin(z)*x+cos(z)*y
+theta27: CONSTANT VALUE=0.3*pi/2
+sx27: CUSTOM ARG=p.x,p.y,theta27 PERIODIC=NO FUNC=cos(z)*x-sin(z)*y
+sy27: CUSTOM ARG=p.x,p.y,theta27 PERIODIC=NO FUNC=sin(z)*x+cos(z)*y
+theta45: CONSTANT VALUE=0.5*pi/2
+sx45: CUSTOM ARG=p.x,p.y,theta45 PERIODIC=NO FUNC=cos(z)*x-sin(z)*y
+sy45: CUSTOM ARG=p.x,p.y,theta45 PERIODIC=NO FUNC=sin(z)*x+cos(z)*y
 
-#the bias
-opes: OPES_METAD TEMP=1 ARG=sx PACE=500 BARRIER=10 SIGMA=0.185815
+target: CUSTOM ARG=sx27 FUNC=step(x+0.4) PERIODIC=NO
 
-PRINT FMT=%g STRIDE=500 FILE=COLVAR ARG=p.x,p.y,doubleWell,sx,sy,opes.*
+OPES_METAD ...
+  LABEL=opes
+  ARG=sx27
+  TEMP=1
+  FILE=Kernels.data
+  STATE_RFILE=compressed.Kernels
+  STATE_WFILE=compressed.Kernels
+  STATE_WSTRIDE=2000
+  PACE=100
+  SIGMA=0.05
+  BARRIER=5
+  EXCLUDED_REGION=target
+  RESTART=NO
+... OPES_METAD
+
+COMMITTOR ...
+ ARG=p.x
+ STRIDE=500
+ BASIN_LL1=1.2
+ BASIN_UL1=2.0
+... COMMITTOR
+
+PRINT FMT=%8.4f STRIDE=100 FILE=COLVAR ARG=p.x,p.y,doubleWell,opes.bias,sx27,sy27,sx45,sy45
 
 ENDPLUMED
-
-This is the same as the simulations from the paper "Rethinking Metadynamics"
-see https://github.com/invemichele/opes/tree/master/model/opes-model
