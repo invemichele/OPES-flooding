@@ -1,0 +1,24 @@
+# vim:ft=plumed
+UNITS NATURAL
+
+p: POSITION ATOM=2
+
+#rotate x,y plane
+theta: CONSTANT VALUE=0.3*pi/2
+sx: CUSTOM ARG=p.x,p.y,theta PERIODIC=NO FUNC=cos(z)*x+sin(z)*y
+sy: CUSTOM ARG=p.x,p.y,theta PERIODIC=NO FUNC=-sin(z)*x+cos(z)*y
+doubleWell: CUSTOM ARG=sx,sy PERIODIC=NO ...
+  FUNC=2*(x^4+y^4-2*x^2-4*y^2+2*x*y+0.8*x+0.1*y+9.28)
+...
+potential: BIASVALUE ARG=doubleWell
+
+#the bias
+ecv: ECV_UMBRELLAS_LINE ARG=doubleWell TEMP=1 SIGMA=2 SPACING=1.5 CV_MIN=0 CV_MAX=12 LOWER_HALF_ONLY
+opes: OPES_EXPANDED ARG=ecv.* PACE=500
+
+PRINT FMT=%g STRIDE=500 FILE=COLVAR ARG=p.x,p.y,doubleWell,sx,sy,opes.*
+
+ENDPLUMED
+
+This is the same as the simulations from the paper "Rethinking Metadynamics"
+see https://github.com/invemichele/opes/tree/master/model/opes-model
